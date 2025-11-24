@@ -1,0 +1,388 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Gestionnaire de Commandes Pain Bio</title>
+    <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fortawesome/fontawesome-free@6.4.0/css/all.min.css">
+</head>
+<body class="bg-gray-50 p-4">
+    <div class="max-w-6xl mx-auto">
+        <h1 class="text-3xl font-bold text-gray-800 mb-8 text-center">
+            <i class="fas fa-bread-slice text-amber-600 mr-2"></i>
+            Gestion des Commandes Pain Bio
+        </h1>
+
+        <div class="bg-white rounded-lg shadow-sm mb-6">
+            <div class="border-b border-gray-200">
+                <nav class="-mb-px flex">
+                    <button id="tab-import" class="tab-button active py-2 px-4 border-b-2 border-blue-500 text-blue-600 font-medium">
+                        <i class="fas fa-file-import mr-2"></i>Import Automatique
+                    </button>
+                    <button id="tab-manual" class="tab-button py-2 px-4 border-b-2 border-transparent text-gray-500 hover:text-gray-700">
+                        <i class="fas fa-edit mr-2"></i>Saisie Manuelle
+                    </button>
+                    <button id="tab-list" class="tab-button py-2 px-4 border-b-2 border-transparent text-gray-500 hover:text-gray-700">
+                        <i class="fas fa-list mr-2"></i>Liste des Commandes
+                    </button>
+                    <button id="tab-summary" class="tab-button py-2 px-4 border-b-2 border-transparent text-gray-500 hover:text-gray-700">
+                        <i class="fas fa-chart-bar mr-2"></i>Récapitulatif Boulanger
+                    </button>
+                </nav>
+            </div>
+        </div>
+
+        <div id="section-import" class="tab-content">
+            <div class="bg-white rounded-lg shadow-sm p-6 mb-6">
+                <h2 class="text-xl font-semibold mb-4">
+                    <i class="fas fa-paste text-blue-600 mr-2"></i>Import Automatique
+                </h2>
+                <p class="text-gray-600 mb-4">Collez directement le texte de commande reçu par email/formulaire :</p>
+                
+                <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-2">Texte de commande :</label>
+                        <textarea id="orderText" class="w-full h-48 p-3 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-blue-500" 
+                                  placeholder="🍞 COMMANDE PAIN BIO&#10;&#10;👤 Nom: ...&#10;📞 Téléphone: ...&#10;📧 Email: ...&#10;📅 Date souhaitée: ...&#10;&#10;📋 COMMANDE:&#10;• Pain Blanc 400g: 2 x 3.6€ = 7.20€&#10;• Pain Complet 400g: 2 x 3.6€ = 7.20€&#10;&#10;TOTAL: 14.40€"></textarea>
+                        <div class="mt-3 flex gap-2">
+                            <button id="parseBtn" class="bg-blue-600 text-white px-4 py-2 rounded-md hover:bg-blue-700 transition-colors">
+                                <i class="fas fa-eye mr-2"></i>Prévisualiser
+                            </button>
+                            <button id="clearBtn" class="bg-gray-600 text-white px-4 py-2 rounded-md hover:bg-gray-700 transition-colors">
+                                <i class="fas fa-eraser mr-2"></i>Effacer
+                            </button>
+                        </div>
+                    </div>
+
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-2">Prévisualisation de la commande :</label>
+                        <div id="preview" class="bg-gray-50 p-4 rounded-md border min-h-48 text-sm">
+                            <div class="text-gray-500 italic">Aucune commande à prévisualiser</div>
+                        </div>
+                        <button id="saveBtn" class="mt-3 bg-green-600 text-white px-4 py-2 rounded-md hover:bg-green-700 transition-colors disabled:bg-gray-400" disabled>
+                            <i class="fas fa-save mr-2"></i>Enregistrer la commande
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div id="section-manual" class="tab-content hidden">
+            <div class="bg-white rounded-lg shadow-sm p-6 mb-6">
+                <h2 class="text-xl font-semibold mb-4">
+                    <i class="fas fa-edit text-blue-600 mr-2"></i>Saisie Manuelle
+                </h2>
+                
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                    <div class="space-y-4">
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700 mb-1">Nom</label>
+                            <input type="text" id="manualName" class="w-full p-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500">
+                        </div>
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700 mb-1">Téléphone</label>
+                            <input type="text" id="manualPhone" class="w-full p-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500">
+                        </div>
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700 mb-1">Email</label>
+                            <input type="email" id="manualEmail" class="w-full p-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500">
+                        </div>
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700 mb-1">Date souhaitée</label>
+                            <input type="date" id="manualDate" class="w-full p-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500">
+                        </div>
+                    </div>
+                    
+                    <div>
+                        <h3 class="text-lg font-medium mb-3">Commande</h3>
+                        <div id="manualItems" class="space-y-2">
+                            </div>
+                        <button id="addItemBtn" class="mt-2 bg-blue-600 text-white px-3 py-1 rounded text-sm hover:bg-blue-700">
+                            <i class="fas fa-plus mr-1"></i>Ajouter un article
+                        </button>
+                        <div class="mt-4 text-lg font-bold">
+                            Total: <span id="manualTotal">0.00€</span>
+                        </div>
+                        <button id="saveManualBtn" class="mt-4 bg-green-600 text-white px-4 py-2 rounded-md hover:bg-green-700">
+                            <i class="fas fa-save mr-2"></i>Enregistrer
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div id="section-list" class="tab-content hidden">
+            <div class="bg-white rounded-lg shadow-sm p-6 mb-6">
+                <h2 class="text-xl font-semibold mb-4">
+                    <i class="fas fa-list text-blue-600 mr-2"></i>Liste des Commandes
+                </h2>
+                <div id="ordersList" class="space-y-4">
+                    <div class="text-gray-500 italic">Aucune commande enregistrée</div>
+                </div>
+                <div class="mt-6 text-xl font-bold text-right">
+                    Total général: <span id="totalGeneral">0.00€</span>
+                </div>
+            </div>
+        </div>
+
+        <div id="section-summary" class="tab-content hidden">
+            <div class="bg-white rounded-lg shadow-sm p-6 mb-6">
+                <h2 class="text-xl font-semibold mb-4">
+                    <i class="fas fa-chart-bar text-blue-600 mr-2"></i>Récapitulatif pour le Boulanger
+                </h2>
+                
+                <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-6">
+                    <div class="bg-blue-50 p-4 rounded-lg">
+                        <div class="text-blue-600 text-sm font-medium">Chiffre d'affaires total</div>
+                        <div class="text-2xl font-bold text-blue-800" id="summaryRevenue">0.00€</div>
+                    </div>
+                    <div class="bg-green-50 p-4 rounded-lg">
+                        <div class="text-green-600 text-sm font-medium">Nombre de commandes</div>
+                        <div class="text-2xl font-bold text-green-800" id="summaryCount">0</div>
+                    </div>
+                    <div class="bg-yellow-50 p-4 rounded-lg">
+                        <div class="text-yellow-600 text-sm font-medium">Poids total de pain</div>
+                        <div class="text-2xl font-bold text-yellow-800" id="summaryWeight">0g</div>
+                    </div>
+                    <div class="bg-purple-50 p-4 rounded-lg">
+                        <div class="text-purple-600 text-sm font-medium">Ticket moyen</div>
+                        <div class="text-2xl font-bold text-purple-800" id="summaryAverage">0.00€</div>
+                    </div>
+                </div>
+
+                <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+                    <div>
+                        <h3 class="text-lg font-semibold mb-3">Répartition par type de pain</h3>
+                        <div id="breadTypesSummary" class="space-y-2">
+                            <div class="text-gray-500 italic">Aucune donnée</div>
+                        </div>
+                    </div>
+                    <div>
+                        <h3 class="text-lg font-semibold mb-3">Commandes par date</h3>
+                        <div id="datesSummary" class="space-y-2">
+                            <div class="text-gray-500 italic">Aucune donnée</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        let orders = JSON.parse(localStorage.getItem('orders') || '[]');
+        let currentPreview = null;
+
+        // Gestion des onglets
+        document.querySelectorAll('.tab-button').forEach(button => {
+            button.addEventListener('click', () => {
+                // Retirer la classe active de tous les boutons
+                document.querySelectorAll('.tab-button').forEach(btn => {
+                    btn.classList.remove('active', 'border-blue-500', 'text-blue-600');
+                    btn.classList.add('border-transparent', 'text-gray-500');
+                });
+                
+                // Ajouter la classe active au bouton cliqué
+                button.classList.add('active', 'border-blue-500', 'text-blue-600');
+                button.classList.remove('border-transparent', 'text-gray-500');
+                
+                // Cacher toutes les sections
+                document.querySelectorAll('.tab-content').forEach(section => {
+                    section.classList.add('hidden');
+                });
+                
+                // Afficher la section correspondante
+                const targetId = button.id.replace('tab-', 'section-');
+                document.getElementById(targetId).classList.remove('hidden');
+                
+                // Mettre à jour les données si nécessaire
+                if (targetId === 'section-list') {
+                    updateOrdersList();
+                } else if (targetId === 'section-summary') {
+                    updateSummary();
+                }
+            });
+        });
+
+        // Parser amélioré pour les commandes
+        function parseOrderText(text) {
+            try {
+                const lines = text.split('\n').map(line => line.trim()).filter(line => line);
+                
+                const order = {
+                    name: '',
+                    phone: '',
+                    email: '',
+                    date: '',
+                    items: [],
+                    total: 0,
+                    totalWeight: 0
+                };
+
+                let inItemsSection = false;
+
+                for (let line of lines) {
+                    // Nettoyer la ligne des emojis et caractères spéciaux
+                    const cleanLine = line.replace(/[🍞👤📞📧📅📋•]/g, '').trim();
+                    
+                    if (cleanLine.toLowerCase().includes('nom:')) {
+                        order.name = cleanLine.split(':')[1]?.trim() || '';
+                    } 
+                    else if (cleanLine.toLowerCase().includes('téléphone:') || cleanLine.toLowerCase().includes('telephone:')) {
+                        order.phone = cleanLine.split(':')[1]?.trim() || '';
+                    }
+                    else if (cleanLine.toLowerCase().includes('email:')) {
+                        order.email = cleanLine.split(':')[1]?.trim() || '';
+                    }
+                    else if (cleanLine.toLowerCase().includes('date souhaitée:') || cleanLine.toLowerCase().includes('date souhaitee:')) {
+                        order.date = cleanLine.split(':')[1]?.trim() || '';
+                    }
+                    else if (cleanLine.toLowerCase().includes('commande:')) {
+                        inItemsSection = true;
+                        continue;
+                    }
+                    else if (cleanLine.toLowerCase().includes('total:')) {
+                        const totalMatch = cleanLine.match(/(\d+\.?\d*)€/);
+                        if (totalMatch) {
+                            order.total = parseFloat(totalMatch[1]);
+                        }
+                        inItemsSection = false;
+                    }
+                    else if (inItemsSection && cleanLine.includes(':')) {
+                        // Parser les items
+                        const item = parseOrderItem(cleanLine);
+                        if (item) {
+                            order.items.push(item);
+                            order.totalWeight += item.weight * item.quantity;
+                        }
+                    }
+                }
+
+                // Calculer le total si pas trouvé
+                if (order.total === 0) {
+                    order.total = order.items.reduce((sum, item) => sum + (item.price * item.quantity), 0);
+                }
+
+                return order;
+            } catch (error) {
+                console.error('Erreur lors du parsing:', error);
+                return null;
+            }
+        }
+
+        function parseOrderItem(line) {
+            try {
+                // Regex pour capturer: nom poids: quantité x prix = total
+                const regex = /^(.+?)(\d+g?):\s*(\d+)\s*x\s*(\d+\.?\d*)[€]?\s*=\s*(\d+\.?\d*)[€]?/i;
+                const match = line.match(regex);
+                
+                if (match) {
+                    const [, name, weightStr, quantity, price, total] = match;
+                    const weight = parseInt(weightStr.replace('g', ''));
+                    
+                    return {
+                        name: name.trim(),
+                        weight: weight,
+                        quantity: parseInt(quantity),
+                        price: parseFloat(price),
+                        total: parseFloat(total)
+                    };
+                }
+                
+                return null;
+            } catch (error) {
+                console.error('Erreur lors du parsing de l\'item:', error);
+                return null;
+            }
+        }
+
+        // Prévisualiser la commande (fonction existante)
+        document.getElementById('parseBtn').addEventListener('click', () => {
+            const text = document.getElementById('orderText').value;
+            const order = parseOrderText(text);
+            
+            if (order) {
+                currentPreview = order;
+                displayPreview(order);
+                document.getElementById('saveBtn').disabled = false;
+            } else {
+                document.getElementById('preview').innerHTML = '<div class="text-red-500">Erreur: Impossible d\'analyser la commande. Vérifiez le format.</div>';
+                document.getElementById('saveBtn').disabled = true;
+            }
+        });
+
+        function displayPreview(order) {
+            const preview = document.getElementById('preview');
+            let html = `
+                <div class="space-y-3">
+                    <div><strong>🍞 COMMANDE PAIN BIO</strong></div>
+                    <div><strong>👤 Nom:</strong> ${order.name}</div>
+                    <div><strong>📞 Téléphone:</strong> ${order.phone}</div>
+                    <div><strong>📧 Email:</strong> ${order.email}</div>
+                    <div><strong>📅 Date souhaitée:</strong> ${order.date}</div>
+                    <div><strong>📋 COMMANDE:</strong></div>
+                    <div class="ml-4 space-y-1">
+            `;
+            
+            order.items.forEach(item => {
+                html += `<div>• ${item.name} ${item.weight}g: ${item.quantity} x ${item.price}€ = ${item.total}€</div>`;
+            });
+            
+            html += `
+                    </div>
+                    <div class="font-bold">TOTAL: ${order.total}€</div>
+                    <div class="text-blue-600 font-medium">Poids total: ${order.totalWeight}g</div>
+                </div>
+            `;
+            
+            preview.innerHTML = html;
+        }
+
+        // Enregistrer la commande (fonction existante)
+        document.getElementById('saveBtn').addEventListener('click', () => {
+            if (currentPreview) {
+                orders.push(currentPreview);
+                localStorage.setItem('orders', JSON.stringify(orders));
+                document.getElementById('orderText').value = '';
+                document.getElementById('preview').innerHTML = '<div class="text-gray-500 italic">Aucune commande à prévisualiser</div>';
+                document.getElementById('saveBtn').disabled = true;
+                currentPreview = null;
+                alert('Commande enregistrée avec succès !');
+                // Mise à jour de la liste après enregistrement
+                updateOrdersList(); 
+                updateSummary(); 
+            }
+        });
+
+        // Effacer le texte (fonction existante)
+        document.getElementById('clearBtn').addEventListener('click', () => {
+            document.getElementById('orderText').value = '';
+            document.getElementById('preview').innerHTML = '<div class="text-gray-500 italic">Aucune commande à prévisualiser</div>';
+            document.getElementById('saveBtn').disabled = true;
+            currentPreview = null;
+        });
+
+        // Saisie manuelle (fonctions existantes - conservées)
+        let manualItems = [];
+
+        function addManualItem() {
+            const itemDiv = document.createElement('div');
+            itemDiv.className = 'flex gap-2 items-center';
+            itemDiv.innerHTML = `
+                <input type="text" placeholder="Pain Blanc" class="item-name flex-1 p-1 border rounded text-sm">
+                <input type="number" placeholder="400" class="item-weight w-16 p-1 border rounded text-sm">
+                <span class="text-xs">g</span>
+                <input type="number" placeholder="2" class="item-quantity w-12 p-1 border rounded text-sm">
+                <span class="text-xs">x</span>
+                <input type="number" step="0.01" placeholder="3.60" class="item-price w-16 p-1 border rounded text-sm">
+                <span class="text-xs">€</span>
+                <button class="remove-item bg-red-500 text-white px-2 py-1 rounded text-xs hover:bg-red-600">
+                    <i class="fas fa-trash"></i>
+                </button>
+            `;
+            
+            document.getElementById('manualItems').appendChild(itemDiv);
+            
+            // Ajouter les événements
+            itemDiv.querySelector('.remove-item').addEventListener('click', () => {
+                itemDiv
