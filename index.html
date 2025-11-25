@@ -26,7 +26,14 @@
     </a>
     <form id="painForm">
     ...
-
+        <h1>Commande de pain bio cuits au feu de bois</h1>
+        
+        <a href="gestionnaire.html" class="gestion-link">
+            ⚙️ Accéder au Gestionnaire de Commandes
+        </a>
+        
+        <form id="painForm">
+        
         .form-container {
             max-width: 600px;
             margin: 0 auto;
@@ -43,7 +50,24 @@
             font-size: 24px;
             font-weight: 600;
         }
-
+        .gestion-link {
+            display: block;
+            text-align: center;
+            margin-bottom: 30px;
+            color: #3498db;
+            font-weight: 600;
+            text-decoration: none;
+            padding: 10px;
+            border: 1px solid #3498db;
+            border-radius: 6px;
+            transition: background-color 0.3s;
+        }
+        
+        .gestion-link:hover {
+            background-color: #e8f4fd;
+            text-decoration: underline;
+        }
+        
         .form-group {
             margin-bottom: 25px;
         }
