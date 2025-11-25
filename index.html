@@ -526,7 +526,7 @@
             </div>
 
 
-    <script data-cfasync="false" src="/cdn-cgi/scripts/5c5dd728/cloudflare-static/email-decode.min.js"></script><script>
+                    <script data-cfasync="false" src="/cdn-cgi/scripts/5c5dd728/cloudflare-static/email-decode.min.js"></script><script>
         const prices = {
             'blanc_400g': 3.60,
             'blanc_800g': 6.50,
@@ -542,6 +542,8 @@
             'epeautre_1kg': 9.00,
             'sarrazin': 7.00
         };
+        // CLÉ POUR LE GESTIONNAIRE (ESSENTIEL POUR L'AUTO-IMPORT)
+        const PENDING_KEY = 'pendingOrderText'; 
 
         function changeQuantity(productId, change) {
             const input = document.getElementById(productId);
@@ -578,57 +580,40 @@
 
         function collectFormData() {
             const formData = new FormData(document.getElementById('painForm'));
+            let commande = "🍞 COMMANDE DE PAIN BIO\n\n";
             
-            const clientName = formData.get('nom_complet');
-            const clientEmail = formData.get('email');
-            const clientPhone = formData.get('telephone');
-            const deliveryDate = formData.get('date_livraison');
-            const renew = formData.get('renouveler') === 'oui' ? 'Oui' : 'Non';
-
-            if (!clientName || !clientEmail || !clientPhone || !deliveryDate) {
-                alert('Veuillez remplir toutes les informations client et la date.');
-                return null;
-            }
-
-            let commandeText = "🍞 COMMANDE PAIN BIO\n\n";
+            // Informations client
+            commande += "👤 INFORMATIONS CLIENT:\n";
+            commande += `Nom: ${formData.get('nom_complet')}\n`;
+            commande += `Email: ${formData.get('email')}\n`;
+            commande += `Téléphone: ${formData.get('telephone')}\n\n`;
             
-            // 1. Informations client (Format exact attendu par le gestionnaire)
-            commandeText += `👤 Nom: ${clientName}\n`;
-            commandeText += `📞 Téléphone: ${clientPhone}\n`;
-            commandeText += `📧 Email: ${clientEmail}\n`;
-            commandeText += `📅 Date souhaitée: ${deliveryDate}\n\n`;
-            
-            // 2. Commande détaillée
-            commandeText += "📋 COMMANDE:\n";
+            // Commande
+            commande += "🛒 DÉTAIL DE LA COMMANDE:\n";
             let hasProducts = false;
             let total = 0;
 
-            // Définition des produits et poids pour le format de l'analyseur
-            const productDetails = {
-                'blanc_400g': { name: 'Pain Blanc', weight: 400, price: 3.60 },
-                'blanc_800g': { name: 'Pain Blanc', weight: 800, price: 6.50 },
-                'blanc_1kg': { name: 'Pain Blanc', weight: 1000, price: 7.00 },
-                'complet_400g': { name: 'Pain Complet', weight: 400, price: 3.60 },
-                'complet_800g': { name: 'Pain Complet', weight: 800, price: 6.50 },
-                'complet_1kg': { name: 'Pain Complet', weight: 1000, price: 7.00 },
-                'cereale_400g': { name: 'Pain Céréale', weight: 400, price: 4.60 },
-                'cereale_800g': { name: 'Pain Céréale', weight: 800, price: 8.50 },
-                'cereale_1kg': { name: 'Pain Céréale', weight: 1000, price: 9.00 },
-                'epeautre_400g': { name: 'Pain Épeautre', weight: 400, price: 4.60 },
-                'epeautre_800g': { name: 'Pain Épeautre', weight: 800, price: 8.50 },
-                'epeautre_1kg': { name: 'Pain Épeautre', weight: 1000, price: 9.00 },
-                'sarrazin': { name: 'Pain Sarrasin', weight: 1000, price: 7.00 } // Mis à 1kg (1000g) pour le Sarrasin
+            const productNames = {
+                'blanc_400g': 'Blanc 400g',
+                'blanc_800g': 'Blanc 800g',
+                'blanc_1kg': 'Blanc 1kg',
+                'complet_400g': 'Complet 400g',
+                'complet_800g': 'Complet 800g',
+                'complet_1kg': 'Complet 1kg',
+                'cereale_400g': 'Céréale 400g',
+                'cereale_800g': 'Céréale 800g',
+                'cereale_1kg': 'Céréale 1kg',
+                'epeautre_400g': 'Épeautre 400g',
+                'epeautre_800g': 'Épeautre 800g',
+                'epeautre_1kg': 'Épeautre 1kg',
+                'sarrazin': 'Sarrazin'
             };
 
-            Object.keys(productDetails).forEach(productId => {
+            Object.keys(prices).forEach(productId => {
                 const quantity = parseInt(formData.get(productId)) || 0;
-                const detail = productDetails[productId];
-
                 if (quantity > 0) {
-                    const subtotal = quantity * detail.price;
-                    // Format précis attendu par parseOrderItem(line) du gestionnaire:
-                    // • Nom Poids: Quantité x Prix = Total
-                    commandeText += `• ${detail.name} ${detail.weight}g: ${quantity} x ${detail.price.toFixed(2)}€ = ${subtotal.toFixed(2)}€\n`;
+                    const subtotal = quantity * prices[productId];
+                    commande += `• ${productNames[productId]} x${quantity} = €${subtotal.toFixed(2)}\n`;
                     total += subtotal;
                     hasProducts = true;
                 }
@@ -639,34 +624,33 @@
                 return null;
             }
 
-            commandeText += `\nTOTAL: ${total.toFixed(2)}€\n\n`;
+            commande += `\n💰 TOTAL: €${total.toFixed(2)}\n\n`;
             
-            commandeText += `Renouvellement automatique: ${renew}\n`;
-            
-            return commandeText;
+            // Date et renouvellement
+            commande += "📅 LIVRAISON:\n";
+            commande += `Date: ${formData.get('date_livraison')}\n`;
+            commande += `Lieu: Mairie de Belis (18h-19h)\n`;
+            commande += `Renouvellement dans 15 jours: ${formData.get('renouveler') === 'oui' ? 'Oui' : 'Non'}\n`;
+
+            return commande;
         }
 
-        function envoyerVersGestionnaire() {
+        // FONTION UNIQUE POUR ENREGISTRER ET REDIRIGER
+        function enregistrerCommande() {
             const commandeText = collectFormData();
             if (!commandeText) return;
 
-            // Clé de stockage utilisée par le gestionnaire
-            const PENDING_KEY = 'pendingOrderText';
-            
-            // 1. Stocker le texte de commande formaté
+            // 1. Sauvegarder la commande dans le Local Storage
             localStorage.setItem(PENDING_KEY, commandeText);
 
-            // 2. Rediriger vers la page du gestionnaire avec un drapeau d'enregistrement automatique
-            // ASSUREZ-VOUS QUE C'EST LE BON CHEMIN
-            const gestionnaireUrl = '/gestionnaire.html'; // Utilisez le slash (/) pour pointer à la racine Netlify
-
-            // Redirection avec le paramètre autoSave=true
-            window.location.href = `${gestionnaireUrl}?autoSave=true`;
+            // 2. Rediriger vers le gestionnaire (ce qui charge automatiquement la commande)
+            window.location.href = 'gestionnaire.html?autoSave=true';
         }
-
 
         // Initialiser le total au chargement
         updateTotal();
+    </script>
+
     </script>
 </body>
 </html>
